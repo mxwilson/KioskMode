@@ -34,7 +34,7 @@ done
 
 echo "Modifying and backing-up $GDMFILE"
 
-cp -v "$GDMFILE" "$GDMFILE".bak
+cp -v "$GDMFILE" "$GDMFILE".$(date +%H%M-%d-%m-%Y).bak
 
 if [ $? != 0 ] ; then 
 	echo "Error: unable to modify custom.conf. Exiting."	
