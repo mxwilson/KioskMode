@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#username="kioskuser"
+#KioskMode - transform CentOS or Ubuntu into Internet kiosk. 
+#copyright 2019 mwilson <http://github.com/mxwilson>
+
 
 if [ -e "/etc/gdm/custom.conf" ] ; then 
 	GDMFILE="/etc/gdm/custom.conf"
@@ -53,11 +55,28 @@ EOF
 
 printf "$outputfile" > $GDMFILE
 
+if [ $? != 0 ] ; then 
+	echo "Error: unable to modify custom.conf. Exiting."	
+	exit 1
+fi
+
+#disable screensaver and some power settings
+gsettings set org.gnome.desktop.screensaver idle-activation-enabled false 
+gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0
+gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
+gsettings set org.gnome.desktop.session idle-delay 0
+
+
+#which browser
 #.config/autostart/desktopfile
-#disable screensaver
-#disable shutdown
+# ustom.conf
+#xdo?
+
 #which browser
 #custom.conf
-#xdo?
+#xdotool
+
 echo "Done"
 exit 0
