@@ -1,0 +1,13 @@
+chmod +x
+/home/kioskuser/browser-autostart.sh
+#!/bin/bash
+firefox -url "https://radar.weather.gov/Conus/full_loop.php" &
+sleep 3;
+xdotool key "F11"
+
+chmod +x
+/home/kioskuser/.config/autostart/kiosk-autostart.desktop
+[Desktop Entry]
+Type=Application
+Name=kiosk-autostart
+Exec=/home/kioskuser/browser-autostart.sh
