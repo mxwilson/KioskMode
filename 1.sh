@@ -61,6 +61,7 @@ if [ $? != 0 ] ; then
 fi
 
 #disable screensaver and some power settings
+set -x
 sudo -u $response gsettings set org.gnome.desktop.screensaver idle-activation-enabled false 
 sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
 sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0
@@ -68,15 +69,12 @@ sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-in
 sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
 sudo -u $response gsettings set org.gnome.desktop.session idle-delay 0
 sudo -u $response gsettings set org.gnome.desktop.screensaver lock-enabled false
+{ set +x; } 2>/dev/null
 
 #which browser
 #.config/autostart/desktopfile
 # ustom.conf
 #xdo?
-
-#which browser
-#custom.conf
-#xdotool
 
 echo "Done"
 exit 0
