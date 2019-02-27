@@ -61,13 +61,13 @@ if [ $? != 0 ] ; then
 fi
 
 #disable screensaver and some power settings
-gsettings set org.gnome.desktop.screensaver idle-activation-enabled false 
-gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
-gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0
-gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0
-gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
-gsettings set org.gnome.desktop.session idle-delay 0
-
+sudo -u $response gsettings set org.gnome.desktop.screensaver idle-activation-enabled false 
+sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0
+sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0
+sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
+sudo -u $response gsettings set org.gnome.desktop.session idle-delay 0
+sudo -u $response gsettings set org.gnome.desktop.screensaver lock-enabled false
 
 #which browser
 #.config/autostart/desktopfile
