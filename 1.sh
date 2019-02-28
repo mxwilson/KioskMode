@@ -19,9 +19,14 @@ echo "My gdm file is $GDMFILE"
 if [ -e "/etc/centos-release" ] ; then
 	DISTRO="centos"
 else
+	cat /etc/os-release | head -n 1 | grep Ubuntu &> /dev/null
+
+	if [ $? != 0 ] ; then 
+		echo "Error: Ubuntu or CentOS not detected. Exiting."
+		exit 1
+	fi
 	DISTRO="ubuntu"
 fi
-
 
 while [ -z "$response" ] ; do
 	read -p "Automatic login username (ie:kioskuser)?: " response
@@ -68,8 +73,6 @@ fi
 
 
 #disable screensaver, adjust some power settings, remove desktop icons
-
-#set -x
 declare -a SETLIST
 
 SETLIST=(
@@ -85,25 +88,26 @@ SETLIST=(
 "gsettings set org.gnome.nautilus.desktop trash-icon-visible false"
 "gsettings set org.gnome.nautilus.desktop volumes-visible false"
 	)
+
 len=${#SETLIST[*]} 
 
 if [ "$DISTRO" == "centos" ] ; then
 	COMMAND1="sudo -u $response"
 		
-	for ((i=0; i<${len}; i++)); do
+	for ((i = 0; i < ${len}; i++)) ; do
 		FINALCOMMAND="$COMMAND1 ${SETLIST[$i]}"
-	 	$FINALCOMMAND
+	 	set -x
+		$FINALCOMMAND
+		{ set +x; } 2>/dev/null
 	done
 else
-	for ((i=0; i<${len}; i++)); do
+	for ((i = 0; i < ${len}; i++)) ; do
 		FINALCOMMAND="${SETLIST[$i]}"
+		set -x
 	 	$FINALCOMMAND
+		{ set +x; } 2>/dev/null
 	done
-
 fi
-
-#set -x		
-#{ set +x; } 2>/dev/null
 
 #which browser
 #.config/autostart/desktopfile
