@@ -3,7 +3,6 @@
 #KioskMode - transform CentOS or Ubuntu into Internet kiosk. 
 #copyright 2019 mwilson <http://github.com/mxwilson>
 
-
 if [ -e "/etc/gdm/custom.conf" ] ; then 
 	GDMFILE="/etc/gdm/custom.conf"
 else 
@@ -16,6 +15,13 @@ else
 fi
 
 echo "My gdm file is $GDMFILE"
+
+if [ -e "/etc/centos-release" ] ; then
+	DISTRO="centos"
+else
+	DISTRO="ubuntu"
+fi
+
 
 while [ -z "$response" ] ; do
 	read -p "Automatic login username (ie:kioskuser)?: " response
@@ -60,24 +66,48 @@ if [ $? != 0 ] ; then
 	exit 1
 fi
 
+
 #disable screensaver, adjust some power settings, remove desktop icons
-set -x
-sudo -u $response gsettings set org.gnome.desktop.screensaver idle-activation-enabled false 
-sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
-sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0
-sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0
-sudo -u $response gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing
-sudo -u $response gsettings set org.gnome.desktop.session idle-delay 0
-sudo -u $response gsettings set org.gnome.desktop.screensaver lock-enabled false
-sudo -u $response gsettings set org.gnome.nautilus.desktop home-icon-visible false
-sudo -u $response gsettings set org.gnome.nautilus.desktop network-icon-visible false
-sudo -u $response gsettings set org.gnome.nautilus.desktop trash-icon-visible false
-sudo -u $response gsettings set org.gnome.nautilus.desktop volumes-visible false
-{ set +x; } 2>/dev/null
+
+#set -x
+declare -a SETLIST
+
+SETLIST=(
+"gsettings set org.gnome.desktop.screensaver idle-activation-enabled false"
+"gsettings set org.gnome.settings-daemon.plugins.power idle-dim false"
+"gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0"
+"gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 0"
+"gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type nothing"
+"gsettings set org.gnome.desktop.session idle-delay 0"
+"gsettings set org.gnome.desktop.screensaver lock-enabled false"
+"gsettings set org.gnome.nautilus.desktop home-icon-visible false"
+"gsettings set org.gnome.nautilus.desktop network-icon-visible false"
+"gsettings set org.gnome.nautilus.desktop trash-icon-visible false"
+"gsettings set org.gnome.nautilus.desktop volumes-visible false"
+	)
+len=${#SETLIST[*]} 
+
+if [ "$DISTRO" == "centos" ] ; then
+	COMMAND1="sudo -u $response"
+		
+	for ((i=0; i<${len}; i++)); do
+		FINALCOMMAND="$COMMAND1 ${SETLIST[$i]}"
+	 	$FINALCOMMAND
+	done
+else
+	for ((i=0; i<${len}; i++)); do
+		FINALCOMMAND="${SETLIST[$i]}"
+	 	$FINALCOMMAND
+	done
+
+fi
+
+#set -x		
+#{ set +x; } 2>/dev/null
 
 #which browser
 #.config/autostart/desktopfile
-# ustom.conf
+#custom.conf
 #xdo?
 
 echo "Done"
