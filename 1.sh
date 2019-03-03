@@ -3,6 +3,20 @@
 #KioskMode - transform CentOS or Ubuntu into Internet kiosk. 
 #copyright 2019 mwilson <http://github.com/mxwilson>
 
+echo "Welcome to KioskMode!" 
+
+if [ "$EUID" -ne 0 ] ; then 
+	echo "Must be run as sudo ${0}"
+	echo "Exiting."
+	exit 1
+fi
+
+#quick check on gnome
+if [ ! -e "/usr/bin/gnome-shell" ] ; then
+	echo "Gnome does not appear to be installed. Exiting."
+	exit 1
+fi
+
 if [ -e "/etc/gdm/custom.conf" ] ; then 
 	GDMFILE="/etc/gdm/custom.conf"
 else 
@@ -70,7 +84,6 @@ if [ $? != 0 ] ; then
 	echo "Error: unable to modify custom.conf. Exiting."	
 	exit 1
 fi
-
 
 #disable screensaver, adjust some power settings, remove desktop icons
 declare -a SETLIST
