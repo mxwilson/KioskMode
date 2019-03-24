@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#KioskMode - transform CentOS or Ubuntu into Internet kiosk. 
+#KioskMode.sh - transform CentOS or Ubuntu into Internet kiosk. 
 #copyright 2019 mwilson <http://github.com/mxwilson>
 
 echo "Welcome to KioskMode!" 
@@ -130,6 +130,11 @@ while [ -z "$browserq" ] ; do
 		if [[ "$browserq" == "y" || "$browserq" == "yes" ]] ; then
 			echo "OK let's use firefox."
 			firefoxuse=1;
+			default_url="https://radar.weather.gov/Conus/full_loop.php";
+			#ask for URL
+			read -p "URL for Firefox to visit (default) [$default_url]: " urlq
+			urlq=${urlq:-$default_url}	
+			echo "Using $urlq"
 		else	
 			echo "OK nevermind!"
 			echo "Done"
@@ -138,10 +143,9 @@ while [ -z "$browserq" ] ; do
 	fi
 done
 
-
 outputfile_autostart_script=$( cat << EOF 
 #!/bin/bash
-firefox --url "https://radar.weather.gov/Conus/full_loop.php" &
+firefox --url \"$urlq\" &
 sleep 3;\n
 EOF
 )
@@ -204,5 +208,6 @@ if [ "$firefoxuse" == "1" ] ; then
 	done
 fi
 
-echo "Done"
+echo "KioskMode is installed."
+echo "Done."
 exit 0
