@@ -7,6 +7,8 @@ to become full screen.
 
 Tested on full installations of CentOS 7.6, and Ubuntu 16.04 (Gnome) and Ubuntu 18.04. 
 
+![Screenshot](git-img.jpg)
+
 Requires sudo access.
 
 To run:
