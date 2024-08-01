@@ -146,7 +146,7 @@ done
 outputfile_autostart_script=$( cat << EOF 
 #!/bin/bash
 firefox --url \"$urlq\" &
-sleep 3;\n
+sleep 5;\n
 EOF
 )
 
@@ -189,20 +189,39 @@ if [ "$firefoxuse" == "1" ] ; then
 
 	#install xdo tool
 	while [ -z "$xdoq" ] ; do
-		read -p "Install \"xdotool\" to simulate \"F11\" key press (for fullscreen browser)? (y/n):" xdoq
+		read -p "Install \"xdotool\" (or \"ydotool\" on wayland) to simulate \"F11\" key press (for fullscreen browser)? (y/n):" xdoq
 
 		if [ ! -z "$xdoq" ] ; then
-			if [[ "$xdoq" == "y" || "$xdoq" == "yes" ]] ; then
-				if [ "$DISTRO" == "ubuntu" ] ; then
-					apt install xdotool
-				else
-					yum -y install epel-release && rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
-					yum -y install xdotool
-				fi
-			echo "xdotool key \"F11\"" >> $MYSCRIPT
-			else	
+			if [[ "$xdoq" == "n" || "$xdoq" == "no" ]] ; then
 				echo "OK nevermind!"
 				break;
+			elif  [[ "$xdoq" == "y" || "$xdoq" == "yes" ]] ; then
+				SESSION_TYPE=$(loginctl show-session $(loginctl | awk -v u="$response" '$0 ~ u{ print $1 }') -p Type | awk -F= '{ print $2 }')
+				echo $SESSION_TYPE
+				if [ "$SESSION_TYPE" = "wayland" ]; then
+					echo "detected Wayland. Installing ydotool.."
+					chmod +x ydotool-manage
+					if [ "$DISTRO" == "ubuntu" ]; then
+						echo "use ydotool-manage install to install ydotool"
+						sh ydotool-manage install
+					else
+						echo " *** Untested variant. Please report if this works for your distro! ***"
+						echo "use ydotool-manage install to install ydotool"
+						sh ydotool-manage install
+					fi
+					echo "ydotool key 87:1 87:0" >> $MYSCRIPT
+				else
+					echo "detected X-Server. Installing xdotool.."
+					if [ "$DISTRO" == "ubuntu" ]; then
+						echo "use apt to install xdotool"
+						apt install xdotool
+					else
+						echo "use yum to install xdotool"
+						yum -y install epel-release && rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+						yum -y install xdotool
+					fi
+					echo "xdotool key \"F11\"" >> $MYSCRIPT
+				fi
 			fi
 		fi
 	done

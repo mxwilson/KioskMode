@@ -1,0 +1,83 @@
+#!/bin/sh
+
+if [ $# -ne 1 ] || ( [ "$1" != "start" ] && [ "$1" != "stop" ] && [ "$1" != "install" ] && [ "$1" != "status" ] );then
+    echo "`basename $0`: missing OPTION
+Usage: `basename $0` [OPTION]
+
+    '`basename $0` start' to start the ydotool service.
+    '`basename $0` stop' to stop the ydotool service
+    '`basename $0` install' to install (or update) ydotool."
+  exit 1
+fi
+
+# Visa status
+if [ "$1" = "status" ]; then
+    sudo systemctl status ydotool.service
+fi
+
+# Start ydtoold
+if [ "$1" = "start" ]; then
+    sudo systemctl start ydotool.service
+    sudo systemctl status ydotool.service
+fi
+
+# Stop ydtoold
+if [ "$1" = "stop" ]; then
+    sudo systemctl stop ydotool.service
+    sudo systemctl status ydotool.service
+fi
+
+# install (clone git folder, build and make install) ydotool and ydotoold.
+if [ "$1" = "install" ] ; then
+    sudo -v
+
+    # pre reqs
+    sudo apt update && sudo apt install cmake scdoc pkg-config -y
+
+    # Check if ydotool repo is downloaded
+    if [ ! -d /opt/ydotool ]; then 
+        cd /tmp
+        git clone https://github.com/ReimuNotMoe/ydotool.git
+        sudo mv /tmp/ydotool/ /opt/
+    fi
+
+    cd /opt/ydotool/
+
+    # Get latest version
+    git pull
+
+    # Make
+    mkdir -p build && cd build
+    cmake ..
+    make -j "$(nproc)"
+
+    # Install
+    sudo make install
+
+    # Remove the need for sudo
+    sudo chmod +s $(which ydotool)
+
+    # Install systemd service
+    sudo rm /etc/systemd/system/ydotoold.service
+    sudo ln -s /usr/lib/systemd/user/ydotoold.service /etc/systemd/system/
+    # Reload the systemd daemon
+    sudo systemctl daemon-reload
+    # Reload enable the service
+    sudo systemctl enable ydotoold
+    # Reload start ydotool
+    sudo systemctl start ydotoold
+    # Check that it is running
+    sudo systemctl status ydotoold
+
+    echo "ydotoold version: $(ydotoold --version)"
+    echo ""
+
+    if ! grep -q 'export YDOTOOL_SOCKET="/tmp/.ydotool_socket"' $HOME/.profile; then
+        echo '' >> "$HOME/.profile"
+        echo '# ydotoold socket location' >> "$HOME/.profile"
+        echo 'export YDOTOOL_SOCKET="/tmp/.ydotool_socket"' >> "$HOME/.profile"
+        echo "YDOTOOL_SOCKET is being exported in $HOME/.profile."
+        echo "Please relog to enable the new profile settings."
+    fi
+
+fi
